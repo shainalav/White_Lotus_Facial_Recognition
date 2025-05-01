@@ -14,6 +14,30 @@ This project uses a Convolutional Neural Network (CNN) with transfer learning to
 - Top layers: Global average pooling, dense layers, dropout, softmax
 - Trained with early stopping and learning rate scheduling
 
+```python
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Flatten, Dense, Resizing
+
+model = Sequential()
+model.add(Resizing(224, 224))  # ResNet50 expects 224x224 input
+model.add(base_model)          # Pretrained VGGFace base
+model.add(Flatten())           # Flatten 4D output to 1D
+model.add(Dense(128, activation='relu'))  # Hidden layer to learn character-specific features
+model.add(Dense(len(labels), activation='softmax'))  # Output layer for classification
+model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+```
+Notes:
+	
+ 	•	Flatten() transforms the feature maps from the base model into a single vector for classification.
+	•	Dense(128, relu) learns distinctive features for each character in the dataset.
+	•	Dense(softmax) outputs probabilities for each class (character).
+	•	Adam is an adaptive optimizer well-suited for image data.
+	•	sparse_categorical_crossentropy is appropriate for integer-labeled data.
+ 
+## Why VGGFace?
+VGGFace is a pretrained model specifically designed for facial recognition. It extracts high-level facial features such as spacing between the eyes, nose shape, jawline, etc., that are consistent across human faces. By freezing the weights of the base model, we retain this powerful feature extractor and avoid overfitting to a small custom dataset.
+
+
 ## Requirements:
 	•	TensorFlow
 	•	NumPy
@@ -25,15 +49,10 @@ This project uses a Convolutional Neural Network (CNN) with transfer learning to
 	•	This model was trained on hand-labeled and manually cropped images.
 	•	It works best on stills or well-lit portraits similar to the training data.
 
-## Acknowledgments
-	•	VGGFace for the pretrained facial recognition backbone
-	•	HBO’s The White Lotus for character image inspiration
- 
 ## How to Use
 
 1. Clone the repository:
 
-```bash
 git clone https://github.com/shainalav/White_Lotus_Facial_Recognition.git
 cd White_Lotus_Facial_Recognition
 
@@ -43,3 +62,7 @@ pip install -r requirements.txt
 3. Run predictions on a new image:
 python predict.py --image path/to/image.jpg
 
+## Acknowledgments
+	•	VGGFace for the pretrained facial recognition backbone
+	•	HBO’s The White Lotus for character image inspiration
+ 
